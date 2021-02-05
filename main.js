@@ -1,3 +1,7 @@
+// const moment = require("moment")
+
+// const moment = require("moment")
+
 console.log ("hello")
 
 const url = 'http://localhost:3000/notes/'
@@ -6,7 +10,7 @@ const noteList = document.querySelector('#note-list')
 
 form.addEventListener('submit', function (event) {
     event.preventDefault()
-    const noteText = document.querySelector('#note-text').Value
+    const noteText = document.querySelector('#note-text').value
     createNote(noteText)
 })
 
@@ -32,7 +36,7 @@ function listNotes () {
     .then(res => res.json())
     .then(data => {
         for (let note of data) {
-            console.log(note.body)
+            console.log(note)
             renderNoteItem(note)
         }
     })
@@ -40,27 +44,96 @@ function listNotes () {
 function renderNoteItem (noteObj) {
     const itemEL = document.createElement('li')
     itemEL.id = noteObj.id
-    // itemEL.classList.add(
-    //     'lh-copy',
-    //     'pv3',
-    //     'ba',
-    //     'bl-0',
-    //     'bt-0',
-    //     'br-0',
-    //     'b--dotted',
-    //     'b--black-3'
-    // )
-    renderNoteText(itemEl, noteObj)
-    noteList.appendChild(itemEl)
-    // clearInput()
+    itemEL.classList.add(
+        'lh-copy',
+        'pv3',
+        'ba',
+        'bl-0',
+        'bt-0',
+        'br-0',
+        'b--dotted',
+        'b--black-3'
+    )
+    renderNoteText(itemEL, noteObj)
+    noteList.appendChild(itemEL)
+    clearInput()
 }
 
-
-function renderNoteText(noteItem, noteObj) {
-    console.log("noteObj.body")
-    noteListItem.innerHTML =` ${noteObj.body}`
+// noteListItem
+function renderNoteText(noteListItem, noteObj) {
+    console.log(noteObj)
+    noteListItem.innerHTML = `<p> ${noteObj.body}</p>`
 }
 
-    // function clearInput () {
+function createNote (noteText) {
+    fetch(url, {
+        method: 'POST',
+        headers: {'Content-Type' : 'application/json' },
+        body: JSON.stringify({
+            body: noteText,
+            created_at: moment().format()
+        })
+    })
+        .then(res => res.json())
+        .then(data => {
+            console.log(data)
+            renderNoteItem(data)
+        })
+}
 
-    // }
+function deleteNote(element) {
+    const noteId = element.parentElement.id
+    fetch(`http://localhost:3000/notes/${noteId}`, {method: 'DELETE'})
+    .then(function () {
+        element.parentElement.remove()
+    })
+}
+
+function editNote(element) {
+    showEditInput(element.parentElement)
+}
+
+function showEditInput (noteItem) {
+    noteItem.innerHTML = `
+    <input class="edit-text bw0 pl0 outline-0 w-60" type="text" value="${noteItem.textContent}" autofocus>
+    <button class='update-note f6 link br-pill p1 ml1 dib white bg-green' data-note=${noteItem.id}>save</button>
+      <button class='cancel f6 link br-pill p1 ml2 dib white light-purple'>cancel</button>
+      `
+    noteItem.querySelector('input').select()
+}
+
+function updateNote (element) {
+    const noteId = element.parentElement.id
+    const noteText = document.querySelector('.edit-text')
+    fetch(`http://localhost3000/notes/${noteId}`, {
+        method: 'PATCH',
+        headers: {'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            item:note.Text.value,
+            updated_at: moment().format()
+        })
+    })
+    .then(function (res) {
+        return res.json()
+    })
+    .then(function (data){
+        console.log(data)
+        renderNoteText(element.parentElement, data)
+    })
+}
+
+function hideEditControls (noteItem) {
+    fetch(`http://localhost:3000/todos/${noteItem.id}`)
+    .then(res => res.json())
+    .then(data => {
+        console.log(data)
+        renderNoteText(noteItem, data)
+    })
+}
+
+    function clearInput () {
+        const inputs = document.querySelectorAll('input')
+            for (let field of inputs) {
+                field.value = ''
+            }
+    }
