@@ -44,6 +44,9 @@ function listNotes () {
 function renderNoteItem (noteObj) {
     const itemEL = document.createElement('li')
     itemEL.id = noteObj.id
+    // let delButton = document.createElement("button");
+    // delButton.className = "delete-note-button";
+    // delButton.innerHTML = "Delete Note"
     itemEL.classList.add(
         'lh-copy',
         'pv3',
@@ -55,6 +58,7 @@ function renderNoteItem (noteObj) {
         'b--black-3'
     )
     renderNoteText(itemEL, noteObj)
+    // noteList.appendChild(delButton)
     noteList.appendChild(itemEL)
     clearInput()
 }
@@ -62,7 +66,8 @@ function renderNoteItem (noteObj) {
 // noteListItem
 function renderNoteText(noteListItem, noteObj) {
     console.log(noteObj)
-    noteListItem.innerHTML = `<p> ${noteObj.body}</p>`
+    noteListItem.innerHTML = //`<p> ${noteObj.body}</p>`
+    `<span class="dib w-60">${noteObj.body}</span><i class="ml2 dark-red fas fa-times delete"></i><i class="ml3 fas fa-edit edit"></i>`
 }
 
 function createNote (noteText) {
@@ -81,11 +86,12 @@ function createNote (noteText) {
         })
 }
 
-function deleteNote(element) {
-    const noteId = element.parentElement.id
-    fetch(`http://localhost:3000/notes/${noteId}`, {method: 'DELETE'})
-    .then(function () {
-        element.parentElement.remove()
+function deleteNote(note) {
+    const noteId = note.parentElement.id
+    fetch(url+noteId, {method: 'DELETE'})
+    .then(()=> {
+        note.parentElement.remove()
+        // listNotes();
     })
 }
 
@@ -105,11 +111,11 @@ function showEditInput (noteItem) {
 function updateNote (element) {
     const noteId = element.parentElement.id
     const noteText = document.querySelector('.edit-text')
-    fetch(`http://localhost3000/notes/${noteId}`, {
+    fetch(`http://localhost:3000/notes/${noteId}`, {
         method: 'PATCH',
         headers: {'Content-Type': 'application/json' },
         body: JSON.stringify({
-            item:note.Text.value,
+            body: noteText.value,
             updated_at: moment().format()
         })
     })
@@ -123,7 +129,7 @@ function updateNote (element) {
 }
 
 function hideEditControls (noteItem) {
-    fetch(`http://localhost:3000/todos/${noteItem.id}`)
+    fetch(`http://localhost:3000/notes/${noteItem.id}`)
     .then(res => res.json())
     .then(data => {
         console.log(data)
